@@ -1,0 +1,12 @@
+{
+    "forward": [
+        {
+            "id": "Name your rule (Text)",
+            "from_chat": "Source chat here (Number)",
+            "to_chat": "Destination chat here (Number)",
+            "options": {},
+            "send_copy": true,
+            "remove_caption": false
+        }
+    ]
+}
