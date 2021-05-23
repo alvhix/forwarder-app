@@ -10,8 +10,8 @@ To specify the source and destination you can add new rules in the *rules.json* 
   "forward": [
     {
       "id": "Rule 1",
-      "from_chat": -1003672971871,
-      "to_chat": -1001393359729,
+      "source": -1003672971871,
+      "destination": [-1001393359729, -1001452299617],
       "options": {},
       "send_copy": true,
       "remove_caption": false
@@ -19,30 +19,27 @@ To specify the source and destination you can add new rules in the *rules.json* 
   ]
 }
 ```
-The structure is very simple:
+The structure of rules.json is very simple:
 * id: Give a unique name to your rule, **make sure that is unique in this file** (Text)
-* from: Source chat id (Number)
-* to: Destination chat id (Number)
+* source: Source chat id, only one chat id (Number)
+* destination: Destination chat ids, can be multiple (Array)
 * options: Options for the message (Array)
 * send_copy: Send copy or not (Boolean)
 * remove_caption: Remove caption (Boolean)
 
-For more information: Go to [TDLib documentation page](https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1forward_messages.html#a6c645037c9b1fb40a3cad767f7bf2c15)
+For more information about the options: Go to [TDLib documentation page](https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1forward_messages.html#a6c645037c9b1fb40a3cad767f7bf2c15)
 
 ##### 2. Get main chat list: 
 Get main chat list of the user. Before anything, you need to know the ids of the groups that you want to add in the *rules.json* file. This will allows you to see all information about all chats you have in the *log/output_log.json* file. You can filter the chat you are interested in by name. If you can't find your chat, you can change in the *config.py* file, the value of LIMIT_CHATS (be careful, if you put a larger number of chats than you have, you will get an error).
 
-##### 3. Get chat by id
-Get chat info by its id.
-
-##### 4. Listen requests/updates: 
+##### 3. Listen requests/updates: 
 Listen all events and writes it to a file. This feature is only for testing purposes.
 
 ### Setup
 This project depends on [TDLib](https://github.com/tdlib/td).
 
 First of all, open the *config.py* file to adjust the parameters of the application:
-1. You need to get the dll/so files and put it in the lib/ folder, then you need to put the path in the lib variable. You can see more info about how to get these files [here](https://tdlib.github.io/td/build.html).
+1. You need to get the dll/so files and put it in the lib/ folder, then you need to put the path in the lib variable. To generate these files go [here](https://tdlib.github.io/td/build.html).
 2. You need to put your API_ID and API_HASH as an environment variable (recommended) or directly in the file. Go to [your Telegram page](https://my.telegram.org).
 
 There are two ways to execute the script:

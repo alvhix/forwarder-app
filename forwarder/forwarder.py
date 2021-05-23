@@ -128,7 +128,7 @@ def update_new_messages():
                     message = event["message"]
                     for rule in rules["forward"]:
                         # if the message from chat_id is in file
-                        if message["chat_id"] == rule["from_chat"]:
+                        if message["chat_id"] == rule["source"]:
                             message_forward = {
                                 "rule_id": rule["id"],
                                 "message_id": [message["id"]],
@@ -185,53 +185,31 @@ def proccess_messages(messages, rules):
         for rule in rules["forward"]:
             if message["rule_id"] == rule["id"]:
                 # variables
-                chat_id = rule["to_chat"]
-                from_chat_id = rule["from_chat"]
+                destination_ids = rule["destination"]
+                source_id = rule["source"]
                 message_id = message["message_id"]
                 options = rule["options"]
                 send_copy = rule["send_copy"]
                 remove_caption = rule["remove_caption"]
-                # forward messages
-                client.forward_message(
-                    chat_id,
-                    from_chat_id,
-                    message_id,
-                    options,
-                    send_copy,
-                    remove_caption,
-                )
-                # log action
-                utility.log_api_action(chat_id, from_chat_id, message_id)
-
-
-# get chat from an id
-def get_chat(chat_id):
-    print("Getting chat...")
-    logging.info("Getting chat by id")
-
-    if chat_id:
-        chat_list = {"chat_list": []}
-        # send request to the Telegram API
-        client.td_send({"@type": "getChat", "chat_id": chat_id})
-        while True:
-            event = client.td_receive()
-            if event:
-                if event["@type"] == "updateNewChat":
-                    chat_list["chat_list"].append(event)
-                    break
-        # write in the events file
-        utility.write_events(chat_list)
-        logger.info("Got requested chat, check log/events.json")
-    else:
-        print("No id entered")
+                for chat_id in destination_ids:
+                    # forward messages
+                    client.forward_message(
+                        chat_id,
+                        source_id,
+                        message_id,
+                        options,
+                        send_copy,
+                        remove_caption,
+                    )
+                    # log action
+                    utility.log_api_action(chat_id, source_id, message_id)
 
 
 # get chats from main chat list
-def get_chats(number_chats):
+def get_chats(limit_chats):
     print("Getting main chat list...")
     logging.info("Getting main chat list")
 
-    limit_chats = number_chats or config.FORWARDER["limit_chats"]
     chat_list = {"chat_list": []}
     # send request to the Telegram API
     client.td_send({"@type": "getChats", "limit": limit_chats})
@@ -276,25 +254,23 @@ def start(argument=None):
                 is_closed = False
                 while not is_closed:
                     command = input(
-                        "-> Enter command:\nfwd - Start listening to new messages for forwarding\ngcs - Get all chats from main chat list\ngc - Get chat by its id\nl - Listen all updates/requests (for debugging)\nq - Quit program\n\n"
+                        "-> Enter command:\nfwd - Start listening to new messages for forwarding\ngcs - Get all chats from main chat list\nl - Listen all updates/requests (for debugging)\nq - Quit program\n\n"
                     )
                     if command == "fwd":
                         update_new_messages()
                     elif command == "gcs":
+                        chats_by_default = config.FORWARDER["limit_chats"]
                         number_chats = input(
                             "Enter the chats you want to retrieve ({} chats by default): ".format(
-                                config.FORWARDER["limit_chats"]
+                                chats_by_default
                             )
                         )
                         if number_chats:
                             number_chats = int(number_chats)
                         else:
-                            number_chats = 0
+                            number_chats = chats_by_default
 
                         get_chats(number_chats)
-                    elif command == "gc":
-                        chat_id = input("Enter the chat id: ")
-                        get_chat(chat_id)
                     elif command == "l":
                         listen()
                     elif command == "q":
