@@ -1,8 +1,9 @@
 # Forwarder high-level functions
-import datetime
 import json
 import logging
 import config
+from datetime import datetime
+from getpass import getpass
 from forwarder import client
 from forwarder import utility
 
@@ -89,7 +90,7 @@ def user_authorization():
 
                 # wait for password if present
                 if auth_state["@type"] == "authorizationStateWaitPassword":
-                    password = input("Please enter your password: ")
+                    password = getpass("Please enter your password: ")
                     client.td_send(
                         {"@type": "checkAuthenticationPassword", "password": password}
                     )
@@ -112,7 +113,7 @@ def update_new_messages():
         # messages queue
         messages = []
         # chrono
-        start_update_time = datetime.datetime.now()
+        start_update_time = datetime.now()
         forwarded = 0
 
         print("Listening to new messages...")
@@ -127,27 +128,27 @@ def update_new_messages():
                 if event["@type"] == "updateNewMessage":
                     message = event["message"]
                     for rule in rules["forward"]:
-                        # if the message from chat_id is in file
-                        if message["chat_id"] == rule["source"]:
-                            message_forward = {
-                                "rule_id": rule["id"],
-                                "message_id": [message["id"]],
-                            }
-                            # append the message to the queue
-                            messages.append(message_forward)
-                            logger.debug(
-                                "Message published at: {}, appended to the queue".format(
-                                    utility.convert_unix_to_datetime(message["date"])
-                                )
-                            )
-                            recently_added = True
+                        # if the message from chat_id is not from an accepted source
+                        if message["chat_id"] != rule["source"]:
+                            continue
+
+                        message_forward = {
+                            "rule_id": rule["id"],
+                            "message_id": [message["id"]],
+                        }
+                        # append the message to the queue
+                        messages.append(message_forward)
+                        logger.debug(
+                            f"Message published at: {utility.convert_unix_to_datetime(message['date'])}, appended to the queue"
+                        )
+                        recently_added = True
 
                 if event["@type"] == "error":
                     # log the error
                     utility.log_api_error(event, logging.ERROR)
 
-            # proccess queue messages every 2 seconds
-            now = datetime.datetime.now()
+            # proccess queue messages every x time
+            now = datetime.now()
             difference_seconds = int((now - start_update_time).total_seconds())
 
             if difference_seconds % config.FORWARDER["periodicity_fwd"] == 0:
@@ -164,11 +165,14 @@ def update_new_messages():
                     # there are messages to proccess
                     if len(messages) > 0:
                         logger.debug("Processing message queue")
+
                         # proccess stored messages
                         proccess_messages(messages, rules)
+
                         # clear queue of messages
                         messages.clear()
                         logger.debug("Message queue processed and cleared")
+
                     # updates forwarded state
                     forwarded = difference_seconds
 
@@ -205,43 +209,6 @@ def proccess_messages(messages, rules):
                     utility.log_api_action(chat_id, source_id, message_id)
 
 
-# get chats from main chat list
-def get_chats(limit_chats):
-    print("Getting main chat list...")
-    logging.info("Getting main chat list")
-
-    chat_list = {"chat_list": []}
-    # send request to the Telegram API
-    client.td_send({"@type": "getChats", "limit": limit_chats})
-    while len(chat_list["chat_list"]) < limit_chats:
-        event = client.td_receive()
-        if event:
-            if event["@type"] == "updateNewChat":
-                chat_list["chat_list"].append(event)
-
-    # write in the events file
-    utility.write_events(chat_list)
-    logger.info("Got main chat list, check log/events.json")
-
-
-# listen all requests/updates and writes in a file (for debugging)
-def listen():
-    try:
-        print("Listening all requests/updates...")
-        logger.debug("Listening all requests/updates")
-        event_list = []
-
-        while True:
-            event = client.td_receive()
-            if event:
-                event_list.append(event)
-                print(event)
-
-    except KeyboardInterrupt:
-        utility.write_events(event_list)
-        logger.info("Listening all requests/updates stopped: interrupted by user")
-
-
 # main method
 def start(argument=None):
     # start the client by sending request to it
@@ -249,44 +216,37 @@ def start(argument=None):
     # get authorization
     authorized = user_authorization()
     if authorized:
-        try:
-            if argument is None:
-                is_closed = False
-                while not is_closed:
-                    command = input(
-                        "-> Enter command:\nfwd - Start listening to new messages for forwarding\ngcs - Get all chats from main chat list\nl - Listen all updates/requests (for debugging)\nq - Quit program\n\n"
-                    )
-                    if command == "fwd":
-                        update_new_messages()
-                    elif command == "gcs":
-                        chats_by_default = config.FORWARDER["limit_chats"]
-                        number_chats = input(
-                            "Enter the chats you want to retrieve ({} chats by default): ".format(
-                                chats_by_default
-                            )
-                        )
-                        if number_chats:
-                            number_chats = int(number_chats)
-                        else:
-                            number_chats = chats_by_default
+        is_closed = False
+        while not is_closed:
+            command = input(
+                """
+-> Enter command:
+fwd - Start listening to new messages for forwarding
+gcs - Get all chats from main chat list
+l - Listen all updates/requests (for debugging)
+q - Quit program
+"""
+            )
 
-                        get_chats(number_chats)
-                    elif command == "l":
-                        listen()
-                    elif command == "q":
-                        print("Stopping the execution...")
-                        is_closed = True
-                    else:
-                        pass
-            elif argument == "fwd":
+            if command == "fwd" or argument == "fwd":
                 update_new_messages()
-            elif argument == "l":
-                listen()
-            else:
-                print(
-                    "\nList of available arguments: \nfwd - Start listening to new messages for forwarding\nl - Listen all updates/requests (for testing)\n"
+            elif command == "gcs" or argument == "gcs":
+                chats_by_default = config.FORWARDER["limit_chats"]
+                number_chats = input(
+                    f"Enter the chats you want to retrieve ({chats_by_default} chats by default): "
                 )
-        except KeyboardInterrupt:
-            logger.info("ForwarderApp stopped: interrupted by user")
+                if number_chats:
+                    number_chats = int(number_chats)
+                else:
+                    number_chats = chats_by_default
+
+                utility.get_chats(number_chats)
+            elif command == "l" or argument == "l":
+                utility.listen()
+            elif command == "q":
+                print("Stopping the execution...")
+                is_closed = True
+            else:
+                pass
     else:
         logger.error("User not authorized")
