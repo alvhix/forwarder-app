@@ -2,13 +2,13 @@ from os import path, getenv
 from dotenv import load_dotenv
 
 load_dotenv()
-dirname = path.dirname(__file__)
+__dirname = path.dirname(__file__)
 
 """ client settings """
-lib = "lib/tdjson.dll"  # your tdjson .so or .dll file (depending on your OS)
+__lib = "lib/tdjson.dll"  # your tdjson .so or .dll file (depending on your OS)
 CLIENT = {
-    "use_test_dc": True,
-    "tdlib_path": path.join(dirname, lib),
+    "use_test_dc": False,
+    "tdlib_path": path.join(__dirname, __lib),
     "wait_timeout": 1,  # second/s
     "database_directory": "tdlib",
     "use_file_database": False,
@@ -27,7 +27,6 @@ CLIENT = {
 FORWARDER = {
     "limit_chats": 5,  # don't put a bigger number of chats that you have
     "periodicity_fwd": 0.5,  # second/s
-    "log_path": path.join(dirname, "log/app.log"),
-    "events_path": path.join(dirname, "log/events.json"),
-    "rules_path": path.join(dirname, "rules.json"),
+    "log_path": path.join(__dirname, "log/app.log"),
+    "rules_path": path.join(__dirname, "rules.json"),
 }
