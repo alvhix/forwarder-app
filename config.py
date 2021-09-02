@@ -19,14 +19,14 @@ CLIENT = {
     "api_hash": str(getenv("API_HASH")),  # your API_HASH
     "system_language": "en",
     "device_model": "Desktop",
-    "app_version": "1.1",
+    "app_version": "1.2",
     "enable_storage_optimizer": True,
 }
 
 """ forwarder settings """
 FORWARDER = {
     "limit_chats": 5,  # don't put a bigger number of chats that you have
-    "periodicity_fwd": 0.5,  # second/s
+    "periodicity_fwd": 1,  # second/s
     "log_path": path.join(__dirname, "log/app.log"),
     "rules_path": path.join(__dirname, "rules.json"),
 }

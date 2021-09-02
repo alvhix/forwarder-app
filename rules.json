@@ -1,12 +1,12 @@
 {
-    "forward": [
-        {
-            "id": "Name your rule (Text)",
-            "source": "Source chat here (Number)",
-            "destination": ["Destination chat here (Array)"],
-            "options": {},
-            "send_copy": true,
-            "remove_caption": false
-        }
-    ]
+  "forward": [
+    {
+      "id": "Rule 1",
+      "source": -1001234567890,
+      "destination": [1234567890],
+      "options": {},
+      "send_copy": true,
+      "remove_caption": false
+    }
+  ]
 }

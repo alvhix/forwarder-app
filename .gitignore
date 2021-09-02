@@ -1,3 +1,4 @@
 tdlib
+__pycache__
 lib/*
 !lib/INSTRUCTIONS.md
