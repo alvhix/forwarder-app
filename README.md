@@ -67,7 +67,7 @@ To interrupt the execution just press CTRL + C or close the CLI.
 
 ##### Hosting
 
-It is recommended to run this app on a server such as Heroku, AWS S3... or on your own Raspberry Pi.
+You can host the application in a server using Docker (soon).
 
 ### Libraries
 
@@ -75,7 +75,7 @@ In the _lib/_ are located the binaries for Windows and Linux. If you need other 
 
 ### Logs
 
-All actions and errors from the forwarder are logged in _log/app.log_.
+All actions and errors are logged in _log/app.log_.
 
 ### Issues
 
