@@ -1,0 +1,19 @@
+forward:
+  - id: Rule 1
+    source: -1001234567890
+    destination:
+      - 1234567890
+    options: {}
+    send_copy: true
+    remove_caption: false
+
+  - id: Rule 2
+    source: -1000987654321
+    destination:
+      - 1234567890
+      - -1001234567890
+    options:
+      disable_notification: true
+      from_background: true
+    send_copy: false
+    remove_caption: true
