@@ -30,7 +30,7 @@ CLIENT = {
 
 """ forwarder settings """
 FORWARDER = {
-    "limit_chats": 9223372036854775807, # 2 ^ 63 -1
+    "limit_chats": 100000,
     "periodicity_fwd": 1,  # second/s
     "log_path": path.join(__dirname, "log\\app.log"),
     "rules_path": path.join(__dirname, "forwarder-app.config.yml"),
