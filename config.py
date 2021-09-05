@@ -26,6 +26,7 @@ CLIENT = {
     "device_model": "Desktop",
     "app_version": "0.1.0",
     "enable_storage_optimizer": True,
+    "verbosity": 1,
 }
 
 """ forwarder settings """

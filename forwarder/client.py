@@ -1,6 +1,8 @@
 from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p, c_double
 import json
+import logging
 import config
+from sys import exit
 from os import getenv
 from dotenv import load_dotenv
 
@@ -33,8 +35,11 @@ class Client:
         device_model,
         app_version,
         enable_storage_optimizer,
+        verbosity,
     ) -> None:
         load_dotenv()
+        self.logger = logging.getLogger(__name__)
+
         # initial parameters
         if api_id is None:
             api_id = int(getenv("API_ID"))
@@ -65,6 +70,7 @@ class Client:
         # create client
         self.client_id = self._td_create_client_id()
 
+        # get c methods
         self._td_receive = _tdjson.td_receive
         self._td_receive.restype = c_char_p
         self._td_receive.argtypes = [c_double]
@@ -77,14 +83,28 @@ class Client:
         self._td_execute.restype = c_char_p
         self._td_execute.argtypes = [c_char_p]
 
-        fatal_error_callback_type = CFUNCTYPE(None, c_char_p)
+        log_message_callback_type = CFUNCTYPE(None, c_int, c_char_p)
+        self._td_set_log_message_callback = _tdjson.td_set_log_message_callback
+        self._td_set_log_message_callback.restype = None
+        self._td_set_log_message_callback.argtypes = [
+            c_int,
+            log_message_callback_type,
+        ]
 
-        self._td_set_log_fatal_error_callback = _tdjson.td_set_log_fatal_error_callback
-        self._td_set_log_fatal_error_callback.restype = None
-        self._td_set_log_fatal_error_callback.argtypes = [fatal_error_callback_type]
+        c_on_log_message_callback = log_message_callback_type(
+            self.on_log_message_callback
+        )
+        self._td_set_log_message_callback(verbosity, c_on_log_message_callback)
 
         # setting TDLib log verbosity level to 1 (errors)
-        self.td_execute({"@type": "setLogVerbosityLevel", "new_verbosity_level": 1})
+        self.td_execute(
+            {"@type": "setLogVerbosityLevel", "new_verbosity_level": verbosity}
+        )
+
+    def on_log_message_callback(self, verbosity_level, message):
+        if verbosity_level == 0:
+            self.logger.critical(message)
+            exit()
 
     # simple wrappers for client usage
     def td_send(self, query) -> None:

@@ -35,6 +35,7 @@ client = Client(
     CLIENT["device_model"],
     CLIENT["app_version"],
     CLIENT["enable_storage_optimizer"],
+    CLIENT["verbosity"]
 )
 
 # build the forwarder object
