@@ -23,6 +23,8 @@ print(
 
 # build the client object
 client = Client(
+    CLIENT["api_id"],
+    CLIENT["api_hash"],
     CLIENT["use_test_dc"],
     CLIENT["tdlib_path"],
     CLIENT["wait_timeout"],
@@ -34,9 +36,6 @@ client = Client(
     CLIENT["app_version"],
     CLIENT["enable_storage_optimizer"],
 )
-
-# init the client with your api id and api hash
-client.init_client(CLIENT["api_id"], CLIENT["api_hash"])
 
 # build the forwarder object
 forwarder = Forwarder(

@@ -21,6 +21,8 @@ class Client:
 
     def __init__(
         self,
+        api_id,
+        api_hash,
         use_test_dc,
         tdlib_path,
         wait_timeout,
@@ -32,7 +34,15 @@ class Client:
         app_version,
         enable_storage_optimizer,
     ) -> None:
+        load_dotenv()
         # initial parameters
+        if api_id is None:
+            api_id = int(getenv("API_ID"))
+        if api_hash is None:
+            api_hash = str(getenv("API_HASH"))
+
+        self.api_id = api_id
+        self.api_hash = api_hash
         self.use_test_dc = use_test_dc
         self.tdlib_path = tdlib_path
         self.wait_timeout = wait_timeout
@@ -52,6 +62,9 @@ class Client:
         self._td_create_client_id.restype = c_int
         self._td_create_client_id.argtypes = []
 
+        # create client
+        self.client_id = self._td_create_client_id()
+
         self._td_receive = _tdjson.td_receive
         self._td_receive.restype = c_char_p
         self._td_receive.argtypes = [c_double]
@@ -70,23 +83,8 @@ class Client:
         self._td_set_log_fatal_error_callback.restype = None
         self._td_set_log_fatal_error_callback.argtypes = [fatal_error_callback_type]
 
-    def init_client(self, api_id, api_hash) -> None:
-        load_dotenv()
-
-        # set api_id and api_hash
-        if api_id is None:
-            api_id = int(getenv("API_ID"))
-        if api_hash is None:
-            api_hash = str(getenv("API_HASH"))
-
-        self.api_id = api_id
-        self.api_hash = api_hash
-
         # setting TDLib log verbosity level to 1 (errors)
         self.td_execute({"@type": "setLogVerbosityLevel", "new_verbosity_level": 1})
-
-        # create client
-        self.client_id = self._td_create_client_id()
 
     # simple wrappers for client usage
     def td_send(self, query) -> None:
