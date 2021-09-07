@@ -49,7 +49,7 @@ This project depends on [TDLib](https://github.com/tdlib/td). TDLib is a cross-p
 
 ##### Basic setup:
 
-1. Setup binaries for TDLib. In the _lib/_ folder there are binaries for Windows and Linux (both ARM64). If you need other binaries, you can build your own following [these instructions](https://tdlib.github.io/td/build.html).
+1. Setup binaries for TDLib. In the _lib/_ folder there are binaries for Windows and Linux (both AMD64). If you need other binaries, you can build your own following [these instructions](https://tdlib.github.io/td/build.html).
 2. Secondly, you need to put your API_ID and API_HASH as an environment variable in your desktop/server (recommended) or put it directly in the .env file. Go to [Telegram page](https://my.telegram.org) to get them.
 3. Configure the forwarder to fit your needs. The _config.py_ contains the instructions to control the behaviour of the forwarder and the client. On the other side, the forwarder-app.config.yml contains the rules for forwarding (source, destination, options...)
 
