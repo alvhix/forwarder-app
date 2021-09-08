@@ -100,7 +100,7 @@ class Forwarder:
 
         except KeyboardInterrupt:
             self.client.stop()
-            self.logger.info("Listening to messages stopped by user")
+            self.logger.info("Client destroyed by the user")
 
     # login
     def authenticate_user(self, event) -> None:
