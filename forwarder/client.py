@@ -1,7 +1,6 @@
-from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p, c_double
 import json
 import logging
-import config
+from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p, c_double, c_void_p
 from sys import exit
 from os import getenv
 from dotenv import load_dotenv
@@ -41,11 +40,6 @@ class Client:
         self.logger = logging.getLogger(__name__)
 
         # initial parameters
-        if api_id is None:
-            api_id = int(getenv("API_ID"))
-        if api_hash is None:
-            api_hash = str(getenv("API_HASH"))
-
         self.api_id = api_id
         self.api_hash = api_hash
         self.use_test_dc = use_test_dc
@@ -63,25 +57,32 @@ class Client:
         _tdjson = CDLL(self.tdlib_path)
 
         # load TDLib functions from shared library
-        self._td_create_client_id = _tdjson.td_create_client_id
-        self._td_create_client_id.restype = c_int
-        self._td_create_client_id.argtypes = []
+        self._td_json_client_create = _tdjson.td_json_client_create
+        self._td_json_client_create.restype = c_void_p
+        self._td_json_client_create.argtypes = []
 
-        # create client
-        self.client_id = self._td_create_client_id()
+        self._td_json_client_receive = _tdjson.td_json_client_receive
+        self._td_json_client_receive.restype = c_char_p
+        self._td_json_client_receive.argtypes = [c_void_p, c_double]
 
-        # get c methods
-        self._td_receive = _tdjson.td_receive
-        self._td_receive.restype = c_char_p
-        self._td_receive.argtypes = [c_double]
+        self._td_json_client_send = _tdjson.td_json_client_send
+        self._td_json_client_send.restype = None
+        self._td_json_client_send.argtypes = [c_void_p, c_char_p]
 
-        self._td_send = _tdjson.td_send
-        self._td_send.restype = None
-        self._td_send.argtypes = [c_int, c_char_p]
+        self._td_json_client_execute = _tdjson.td_json_client_execute
+        self._td_json_client_execute.restype = c_char_p
+        self._td_json_client_execute.argtypes = [c_void_p, c_char_p]
 
-        self._td_execute = _tdjson.td_execute
-        self._td_execute.restype = c_char_p
-        self._td_execute.argtypes = [c_char_p]
+        self._td_json_client_destroy = _tdjson.td_json_client_destroy
+        self._td_json_client_destroy.restype = None
+        self._td_json_client_destroy.argtypes = [c_void_p]
+
+        self._td_set_log_verbosity_level = _tdjson.td_set_log_verbosity_level
+        self._td_set_log_verbosity_level.restype = None
+        self._td_set_log_verbosity_level.argtypes = [c_int]
+
+        # setting TDLib log verbosity level
+        self._td_set_log_verbosity_level(verbosity)
 
         log_message_callback_type = CFUNCTYPE(None, c_int, c_char_p)
         self._td_set_log_message_callback = _tdjson.td_set_log_message_callback
@@ -96,10 +97,8 @@ class Client:
         )
         self._td_set_log_message_callback(verbosity, c_on_log_message_callback)
 
-        # setting TDLib log verbosity level to 1 (errors)
-        self.td_execute(
-            {"@type": "setLogVerbosityLevel", "new_verbosity_level": verbosity}
-        )
+        # create client
+        self._td_json_client = self._td_json_client_create()
 
     def on_log_message_callback(self, verbosity_level, message):
         if verbosity_level == 0:
@@ -107,19 +106,22 @@ class Client:
             exit()
 
     # simple wrappers for client usage
-    def td_send(self, query) -> None:
+    def send(self, query) -> None:
         query = json.dumps(query).encode("utf-8")
-        self._td_send(self.client_id, query)
+        self._td_json_client_send(self._td_json_client, query)
 
-    def td_receive(self) -> None:
-        result = self._td_receive(config.CLIENT["wait_timeout"])
+    def receive(self) -> None:
+        result = self._td_json_client_receive(self._td_json_client, self.wait_timeout)
         if result:
             result = json.loads(result.decode("utf-8"))
         return result
 
-    def td_execute(self, query) -> None:
+    def execute(self, query) -> None:
         query = json.dumps(query).encode("utf-8")
-        result = self._td_execute(query)
+        result = self._td_execute(self._td_json_client, query)
         if result:
             result = json.loads(result.decode("utf-8"))
         return result
+
+    def stop(self) -> None:
+        self._td_json_client_destroy(self._td_json_client)

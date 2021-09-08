@@ -1,5 +1,5 @@
 from platform import system
-from os import path, getenv
+from os import path, environ
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -7,13 +7,13 @@ __dirname = path.dirname(__file__)
 
 """ client settings """
 if system() == "Windows":
-    __lib = "lib\\windows\\tdjson.dll"
+    __lib = "lib/windows/tdjson.dll"
 elif system() == "Linux":
-    __lib = "lib\\linux\\libtdjson.so.1.7.4"
+    __lib = "lib/linux/libtdjson.so.1.7.4"
 
 CLIENT = {
-    "api_id": int(getenv("API_ID")),  # your API_ID
-    "api_hash": str(getenv("API_HASH")),  # your API_HASH
+    "api_id": environ["API_ID"],  # your API_ID
+    "api_hash": environ["API_HASH"],  # your API_HASH
     "use_test_dc": False,
     "tdlib_path": path.join(__dirname, __lib),
     "wait_timeout": 1,  # second/s
@@ -33,7 +33,7 @@ CLIENT = {
 FORWARDER = {
     "limit_chats": 100000,
     "periodicity_fwd": 1,  # second/s
-    "log_path": path.join(__dirname, "log\\app.log"),
+    "log_path": path.join(__dirname, "log/app.log"),
     "rules_path": path.join(__dirname, "forwarder-app.config.yml"),
     "group_messages": False,  # group media messages or not
 }

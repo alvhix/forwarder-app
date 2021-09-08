@@ -45,7 +45,7 @@ class Forwarder:
         reply_markup,
         input_message_content,
     ) -> None:
-        self.client.td_send(
+        self.client.send(
             {
                 "@type": "sendMessage",
                 "chat_id": chat_id,
@@ -61,7 +61,7 @@ class Forwarder:
     def forward_message(
         self, chat_id, from_chat_id, messages_ids, options, send_copy, remove_caption
     ) -> None:
-        self.client.td_send(
+        self.client.send(
             {
                 "@type": "forwardMessages",
                 "chat_id": chat_id,
@@ -75,7 +75,7 @@ class Forwarder:
 
     def start(self) -> None:
         # start the client by sending request to it
-        self.client.td_send({"@type": "getAuthorizationState"})
+        self.client.send({"@type": "getAuthorizationState"})
 
         # chrono
         self.start_update_time = datetime.now()
@@ -83,7 +83,7 @@ class Forwarder:
             # main events cycle
             while True:
                 self.recently_added = False
-                event = self.client.td_receive()
+                event = self.client.receive()
 
                 if event:
                     # authenticate user
@@ -99,6 +99,7 @@ class Forwarder:
                 self.process_message_queue()
 
         except KeyboardInterrupt:
+            self.client.stop()
             self.logger.info("Listening to messages stopped by user")
 
     # login
@@ -116,7 +117,7 @@ class Forwarder:
             # you MUST obtain your own api_id and api_hash at https://my.telegram.org
             # and use them in the setTdlibParameters call
             if auth_state["@type"] == self.client.WAIT_TDLIB_PARAMETERS:
-                self.client.td_send(
+                self.client.send(
                     {
                         "@type": "setTdlibParameters",
                         "parameters": {
@@ -135,7 +136,7 @@ class Forwarder:
 
             # set an encryption key for database to let know TDLib how to open the database
             if auth_state["@type"] == self.client.WAIT_ENCRYPTION_KEY:
-                self.client.td_send(
+                self.client.send(
                     {
                         "@type": "checkDatabaseEncryptionKey",
                         "encryption_key": "",
@@ -145,7 +146,7 @@ class Forwarder:
             # enter phone number to log in
             if auth_state["@type"] == self.client.WAIT_PHONE_NUMBER:
                 phone_number = input("Please enter your phone number: ")
-                self.client.td_send(
+                self.client.send(
                     {
                         "@type": "setAuthenticationPhoneNumber",
                         "phone_number": phone_number,
@@ -155,13 +156,13 @@ class Forwarder:
             # wait for authorization code
             if auth_state["@type"] == self.client.WAIT_CODE:
                 code = input("Please enter the authentication code you received: ")
-                self.client.td_send({"@type": "checkAuthenticationCode", "code": code})
+                self.client.send({"@type": "checkAuthenticationCode", "code": code})
 
             # wait for first and last name for new users
             if auth_state["@type"] == self.client.WAIT_REGISTRATION:
                 first_name = input("Please enter your first name: ")
                 last_name = input("Please enter your last name: ")
-                self.client.td_send(
+                self.client.send(
                     {
                         "@type": "registerUser",
                         "first_name": first_name,
@@ -172,7 +173,7 @@ class Forwarder:
             # wait for password if present
             if auth_state["@type"] == self.client.WAIT_PASSWORD:
                 password = getpass("Please enter your password: ")
-                self.client.td_send(
+                self.client.send(
                     {
                         "@type": "checkAuthenticationPassword",
                         "password": password,
@@ -182,7 +183,7 @@ class Forwarder:
             # user authenticated
             if auth_state["@type"] == self.client.READY:
                 # get all chats
-                self.client.td_send({"@type": "getChats", "limit": self.limit_chats})
+                self.client.send({"@type": "getChats", "limit": self.limit_chats})
                 self.logger.debug("User authorized")
 
     # handle new messages updates

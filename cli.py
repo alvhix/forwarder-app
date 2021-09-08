@@ -1,7 +1,8 @@
+import logging
+
 from forwarder.client import Client
 from forwarder.forwarder import Forwarder
-import sys
-import logging
+from sys import exit
 from config import CLIENT, FORWARDER
 from datetime import datetime
 
@@ -35,7 +36,7 @@ client = Client(
     CLIENT["device_model"],
     CLIENT["app_version"],
     CLIENT["enable_storage_optimizer"],
-    CLIENT["verbosity"]
+    CLIENT["verbosity"],
 )
 
 # build the forwarder object
@@ -52,4 +53,4 @@ forwarder = Forwarder(
 forwarder.start()
 
 logger.info(f"Stopping ForwarderApp: executed for {datetime.now() - start_time}\n")
-sys.exit()
+exit()
