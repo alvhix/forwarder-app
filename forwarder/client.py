@@ -35,7 +35,6 @@ class Client:
         app_version,
         enable_storage_optimizer,
         verbosity,
-        log_path,
     ) -> None:
         load_dotenv()
         self.logger = logging.getLogger(__name__)
@@ -78,15 +77,9 @@ class Client:
         self._td_json_client_destroy.restype = None
         self._td_json_client_destroy.argtypes = [c_void_p]
 
-        self._td_set_log_file_path = _tdjson.td_set_log_file_path
-        self._td_set_log_file_path.restype = c_int
-        self._td_set_log_file_path.argtypes = [c_char_p]
-
         self._td_set_log_verbosity_level = _tdjson.td_set_log_verbosity_level
         self._td_set_log_verbosity_level.restype = None
         self._td_set_log_verbosity_level.argtypes = [c_int]
-
-        self._td_set_log_file_path(bytes(log_path, "utf-8"))
 
         # setting TDLib log verbosity level to 1
         self._td_set_log_verbosity_level(verbosity)

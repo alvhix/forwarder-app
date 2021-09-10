@@ -37,7 +37,6 @@ client = Client(
     CLIENT["app_version"],
     CLIENT["enable_storage_optimizer"],
     CLIENT["verbosity"],
-    FORWARDER["log_path"],
 )
 
 # build the forwarder object

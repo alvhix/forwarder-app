@@ -1,4 +1,4 @@
-from platform import system
+import platform
 from os import path, environ
 from dotenv import load_dotenv
 
@@ -6,10 +6,12 @@ load_dotenv()
 __dirname = path.dirname(__file__)
 
 """ client settings """
-if system() == "Windows":
-    __lib = "lib/windows/tdjson.dll"
-elif system() == "Linux":
-    __lib = "lib/linux/libtdjson.so.1.7.4"
+if platform.system() == "Windows":
+    if platform.architecture()[0] == '64bit':
+        __lib = "lib/windows/amd64/tdjson.dll"
+elif platform.system() == "Linux":
+    if platform.architecture()[0] == '64bit':
+        __lib = "lib/linux/amd64/libtdjson.so"
 
 CLIENT = {
     "api_id": environ["API_ID"],  # your API_ID
