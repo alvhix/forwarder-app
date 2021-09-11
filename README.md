@@ -68,7 +68,7 @@ For more information about the options: Go to [TDLib documentation page](https:/
 
 To execute the script:
 
-1. From the [CLI](docs/cli.md):
+1. From the [CLI](docs/cli.md).
 
 2. From [Docker](docs/docker.md).
 

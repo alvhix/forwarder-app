@@ -95,6 +95,9 @@ class Forwarder:
                     # handler errors
                     self.error_update_handler(event)
 
+                    # handle every update
+                    self.listen_update_handler(event)
+
                 # process the message queue (if is not empty)
                 self.process_message_queue()
 
@@ -214,6 +217,10 @@ class Forwarder:
         if event["@type"] == self.client.ERROR:
             # log the error
             self.logger.error(event)
+
+    # log events
+    def listen_update_handler(self, event):
+        self.logger.debug(str(event).encode("utf-8"))
 
     # forward the message
     def process_message(self, message) -> None:
