@@ -7,11 +7,11 @@ __dirname = path.dirname(__file__)
 
 """ client settings """
 if platform.system() == "Windows":
-    if platform.architecture()[0] == '64bit':
+    if platform.architecture()[0] == "64bit":
         __lib = "lib/windows/amd64/tdjson.dll"
 elif platform.system() == "Linux":
-    if platform.architecture()[0] == '64bit':
-        __lib = "lib/linux/amd64/libtdjson.so"
+    if platform.architecture()[0] == "64bit":
+        __lib = "lib/linux/amd64/libtdjson.so.1.7.7"
 
 CLIENT = {
     "api_id": environ["API_ID"],  # your API_ID
