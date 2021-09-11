@@ -1,5 +1,6 @@
 import yaml
 import logging
+import sys
 from forwarder.message import Message
 from datetime import datetime
 from getpass import getpass
@@ -220,7 +221,8 @@ class Forwarder:
 
     # log events
     def listen_update_handler(self, event):
-        self.logger.debug(str(event).encode("utf-8"))
+        self.logger.debug(str(event).encode())
+        sys.stdout.flush()
 
     # forward the message
     def process_message(self, message) -> None:

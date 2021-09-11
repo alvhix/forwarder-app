@@ -94,4 +94,4 @@ All actions and errors are logged in _log/app.log_ file.
 
 ### Issues
 
-If you detect a [bug](.github/bug_report.md) or you have a [suggestion](.github/feature_request.md), contact me by opening a ticket with the corresponding template.
+If you detect a [bug](.github/ISSUE_TEMPLATE/bug_report.md) or you have a [suggestion](.github/ISSUE_TEMPLATE/feature_request.md), contact me by opening a ticket with the corresponding template.
