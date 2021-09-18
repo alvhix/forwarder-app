@@ -11,9 +11,9 @@ if platform.system() == "Windows":
         __lib = "lib/windows/AMD64/tdjson.dll"
 elif platform.system() == "Linux":
     if platform.machine() == "AMD64":
-        __lib = "lib/linux/AMD64/libtdjson.so.1.7.7"
+        __lib = "lib/linux/AMD64/libtdjson.so"
     elif platform.machine() == "armv7l":
-        __lib = "lib/linux/armv7l/libtdjson.so.1.7.7"
+        __lib = "lib/linux/armv7l/libtdjson.so"
 
 CLIENT = {
     "api_id": environ["API_ID"],  # your API_ID
