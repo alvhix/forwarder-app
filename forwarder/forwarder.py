@@ -186,8 +186,6 @@ class Forwarder:
 
             # user authenticated
             if auth_state["@type"] == self.client.READY:
-                # get all chats
-                self.client.send({"@type": "getChats", "limit": self.limit_chats})
                 self.logger.debug("User authorized")
 
     # handle new messages updates
@@ -200,6 +198,9 @@ class Forwarder:
                 # if the message from chat_id is not from an defined source
                 if message_update["chat_id"] != rule["source"]:
                     continue
+
+                # get all chats
+                self.client.send({"@type": "getChats", "limit": self.limit_chats})
 
                 # build the message
                 message = Message(message_update, rule)
