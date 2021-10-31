@@ -19,3 +19,5 @@ Make sure you have read [how the config file works](https://github.com/Alvhix/Fo
 ```
 python cli.py
 ```
+
+5. To interrupt the execution just press CTRL + C or close the CLI.

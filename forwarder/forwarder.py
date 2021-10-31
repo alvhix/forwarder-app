@@ -226,13 +226,13 @@ class Forwarder:
 
     # forward the message
     def process_message(self, message) -> None:
-        # variables
         message_id = message.message_id
         source_id = message.source_id
         destination_ids = message.destination_ids
         options = message.options
         send_copy = message.send_copy
         remove_caption = message.remove_caption
+
         for chat_id in destination_ids:
             # forward messages
             self.forward_message(
@@ -274,8 +274,8 @@ class Forwarder:
                         self.messages.clear()
                         self.logger.debug("Message queue processed and cleared")
 
-                    # updates forwarded state
-                    self.forwarded = self.difference_seconds
+                        # updates forwarded state
+                        self.forwarded = self.difference_seconds
 
     # group message_id by rule_id
     def group_message_id(self, messages) -> list:

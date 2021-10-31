@@ -70,11 +70,9 @@ To execute the script:
 
 1. From the [CLI](docs/cli.md).
 
-2. From [Docker](docs/docker.md).
+2. From [Docker](docs/docker.md) (recommended for serious use).
 
-Once executed for the first time, the app will ask you for a user of Telegram to use it. Once you have been authorized, the forwarder will automatically start listening to all chats specified in the forwarder-app.config.yml file for messages to forward.
-
-To interrupt the execution just press CTRL + C or close the CLI.
+Once executed for the first time, the app will ask you for authentication. Once you have been authorized, the forwarder will automatically start listening to all chats specified in the forwarder-app.config.yml file for messages to forward.
 
 ##### Hosting
 
