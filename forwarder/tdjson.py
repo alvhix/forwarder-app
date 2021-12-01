@@ -48,8 +48,9 @@ class TdJson:
         )
         self.error_callback(c_on_fatal_error_callback)
 
-        self.client = self.create()
-
     def on_fatal_error_callback(self, message) -> None:
         self.logger.critical(message)
         exit()
+
+    def create_client(self) -> None:
+        self.client = self.create()

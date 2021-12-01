@@ -52,6 +52,7 @@ class Client:
         self.app_version = app_version
         self.enable_storage_optimizer = enable_storage_optimizer
         self._tdjson = TdJson(tdlib_path, verbosity)
+        self._tdjson.create_client()
 
     # simple wrappers for client usage
     def send(self, query) -> None:
