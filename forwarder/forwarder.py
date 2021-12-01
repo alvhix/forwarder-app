@@ -35,45 +35,6 @@ class Forwarder:
             + "}"
         )
 
-        # send a message
-
-    def send_message(
-        self,
-        chat_id,
-        message_thread_id,
-        reply_to_message_id,
-        options,
-        reply_markup,
-        input_message_content,
-    ) -> None:
-        self.client.send(
-            {
-                "@type": "sendMessage",
-                "chat_id": chat_id,
-                "message_thread_id": message_thread_id,
-                "reply_to_message_id": reply_to_message_id,
-                "options": options,
-                "reply_markup": reply_markup,
-                "input_message_content": input_message_content,
-            }
-        )
-
-    # forward messages
-    def forward_message(
-        self, chat_id, from_chat_id, messages_ids, options, send_copy, remove_caption
-    ) -> None:
-        self.client.send(
-            {
-                "@type": "forwardMessages",
-                "chat_id": chat_id,
-                "from_chat_id": from_chat_id,
-                "message_ids": messages_ids,
-                "options": options,
-                "send_copy": send_copy,
-                "remove_caption": remove_caption,
-            }
-        )
-
     def start(self) -> None:
         # start the client by sending request to it
         self.client.send({"@type": "getAuthorizationState"})
@@ -106,7 +67,6 @@ class Forwarder:
             self.client.stop()
             self.logger.info("Client destroyed by the user")
 
-    # login
     def authenticate_user(self, event) -> None:
         # process authorization states
         if event["@type"] == self.client.AUTHORIZATION:
@@ -190,7 +150,6 @@ class Forwarder:
                 self.client.send({"@type": "getChats", "limit": self.limit_chats})
                 self.logger.debug("User authorized")
 
-    # handle new messages updates
     def new_message_update_handler(self, event) -> None:
         # handle incoming messages
         if event["@type"] == self.client.NEW_MESSAGE:
@@ -213,18 +172,15 @@ class Forwarder:
                 else:
                     self.process_message(message)
 
-    # log error
     def error_update_handler(self, event) -> None:
         if event["@type"] == self.client.ERROR:
             # log the error
             self.logger.error(event)
 
-    # log events
     def listen_update_handler(self, event):
         self.logger.debug(str(event).encode())
         sys.stdout.flush()
 
-    # forward the message
     def process_message(self, message) -> None:
         message_id = message.message_id
         source_id = message.source_id
@@ -247,7 +203,6 @@ class Forwarder:
             self.logger.info(f"Message forwarding has been sent to the API: {message}")
             print(f"Message forwarded: {message}")
 
-    # process grouped messages
     def process_message_queue(self) -> None:
         # there are messages to proccess
         if self.messages:

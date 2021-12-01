@@ -1,9 +1,7 @@
 import json
 import logging
-from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p, c_double, c_void_p
-from sys import exit
-from os import getenv
 from dotenv import load_dotenv
+from forwarder.tdjson import TdJson
 
 
 class Client:
@@ -19,6 +17,8 @@ class Client:
     CLOSED = "authorizationStateClosed"
     NEW_MESSAGE = "updateNewMessage"
     ERROR = "error"
+    SENDMESSAGE = "sendMessage"
+    FORWARDMESSAGE = "forwardMessages"
 
     def __init__(
         self,
@@ -43,7 +43,6 @@ class Client:
         self.api_id = api_id
         self.api_hash = api_hash
         self.use_test_dc = use_test_dc
-        self.tdlib_path = tdlib_path
         self.wait_timeout = wait_timeout
         self.database_directory = database_directory
         self.use_file_database = use_file_database
@@ -52,72 +51,61 @@ class Client:
         self.device_model = device_model
         self.app_version = app_version
         self.enable_storage_optimizer = enable_storage_optimizer
-
-        # load shared library
-        _tdjson = CDLL(self.tdlib_path)
-
-        # load TDLib functions from shared library
-        self._td_json_client_create = _tdjson.td_json_client_create
-        self._td_json_client_create.restype = c_void_p
-        self._td_json_client_create.argtypes = []
-
-        self._td_json_client_receive = _tdjson.td_json_client_receive
-        self._td_json_client_receive.restype = c_char_p
-        self._td_json_client_receive.argtypes = [c_void_p, c_double]
-
-        self._td_json_client_send = _tdjson.td_json_client_send
-        self._td_json_client_send.restype = None
-        self._td_json_client_send.argtypes = [c_void_p, c_char_p]
-
-        self._td_json_client_execute = _tdjson.td_json_client_execute
-        self._td_json_client_execute.restype = c_char_p
-        self._td_json_client_execute.argtypes = [c_void_p, c_char_p]
-
-        self._td_json_client_destroy = _tdjson.td_json_client_destroy
-        self._td_json_client_destroy.restype = None
-        self._td_json_client_destroy.argtypes = [c_void_p]
-
-        self._td_set_log_verbosity_level = _tdjson.td_set_log_verbosity_level
-        self._td_set_log_verbosity_level.restype = None
-        self._td_set_log_verbosity_level.argtypes = [c_int]
-
-        # setting TDLib log verbosity level to 1
-        self._td_set_log_verbosity_level(verbosity)
-
-        fatal_error_callback_type = CFUNCTYPE(None, c_char_p)
-        self._td_set_log_fatal_error_callback = _tdjson.td_set_log_fatal_error_callback
-        self._td_set_log_fatal_error_callback.restype = None
-        self._td_set_log_fatal_error_callback.argtypes = [fatal_error_callback_type]
-
-        c_on_fatal_error_callback = fatal_error_callback_type(
-            self.on_fatal_error_callback
-        )
-        self._td_set_log_fatal_error_callback(c_on_fatal_error_callback)
-
-        # create client
-        self._td_json_client = self._td_json_client_create()
-
-    def on_fatal_error_callback(self, message) -> None:
-        self.logger.critical(message)
-        exit()
+        self._tdjson = TdJson(tdlib_path, verbosity)
 
     # simple wrappers for client usage
     def send(self, query) -> None:
         query = json.dumps(query).encode("utf-8")
-        self._td_json_client_send(self._td_json_client, query)
+        self._tdjson.send(self._tdjson.client, query)
 
     def receive(self) -> object:
-        result = self._td_json_client_receive(self._td_json_client, self.wait_timeout)
+        result = self._tdjson.receive(self._tdjson.client, self.wait_timeout)
         if result:
             result = json.loads(result.decode("utf-8"))
         return result
 
     def execute(self, query) -> object:
         query = json.dumps(query).encode("utf-8")
-        result = self._td_execute(self._td_json_client, query)
+        result = self._tdjson.execute(self._tdjson.client, query)
         if result:
             result = json.loads(result.decode("utf-8"))
         return result
 
+    def send_message(
+        self,
+        chat_id,
+        message_thread_id,
+        reply_to_message_id,
+        options,
+        reply_markup,
+        input_message_content,
+    ) -> None:
+        self.send(
+            {
+                "@type": self.SENDMESSAGE,
+                "chat_id": chat_id,
+                "message_thread_id": message_thread_id,
+                "reply_to_message_id": reply_to_message_id,
+                "options": options,
+                "reply_markup": reply_markup,
+                "input_message_content": input_message_content,
+            }
+        )
+
+    def forward_message(
+        self, chat_id, from_chat_id, messages_ids, options, send_copy, remove_caption
+    ) -> None:
+        self.send(
+            {
+                "@type": self.FORWARDMESSAGE,
+                "chat_id": chat_id,
+                "from_chat_id": from_chat_id,
+                "message_ids": messages_ids,
+                "options": options,
+                "send_copy": send_copy,
+                "remove_caption": remove_caption,
+            }
+        )
+
     def stop(self) -> None:
-        self._td_json_client_destroy(self._td_json_client)
+        self._tdjson.destroy(self._tdjson.client)
