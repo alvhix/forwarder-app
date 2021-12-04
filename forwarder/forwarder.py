@@ -66,6 +66,9 @@ class Forwarder:
         except KeyboardInterrupt:
             self.client.stop()
             self.logger.info("Client destroyed by the user")
+        except Exception as error:
+            self.client.stop()
+            self.logger.fatal(f"Fatal error: {error}")
 
     def authenticate_user(self, event) -> None:
         # process authorization states
@@ -148,7 +151,7 @@ class Forwarder:
             if auth_state["@type"] == self.client.READY:
                 # get all chats
                 self.client.send({"@type": "getChats", "limit": self.limit_chats})
-                self.logger.debug("User authorized")
+                self.logger.info("User authorized")
 
     def new_message_update_handler(self, event) -> None:
         # handle incoming messages
@@ -191,7 +194,7 @@ class Forwarder:
 
         for chat_id in destination_ids:
             # forward messages
-            self.forward_message(
+            self.client.forward_message(
                 chat_id,
                 source_id,
                 message_id,

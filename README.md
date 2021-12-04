@@ -1,14 +1,12 @@
 # Telegram Forwarder App
 
-### Functionalities
+### Description
 
-##### 1. Forward messages:
-
-Forward messages from a chat to another.
+The forwarder-app is a Python client that forwards messages automatically from a chat to another by using your personal Telegram account.
 
 Every rule allows you to forward from one source to n destinations (one to many)
 
-You can have as many rules as you want.
+You can have as many rules as you want or until your machine can take it.
 
 ### Setup
 
@@ -78,16 +76,16 @@ Once executed for the first time, the app will ask you for authentication. Once 
 
 The best way to host this application is in a dedicated server as AWS, Google Cloud, Azure...
 
-Warning: The TDLib library stores data in memory throughout the life cycle of the application. At the moment there is no memory cleanup method, so it is recommended to restart the application from time to time for prolonged uses.
+Warning: The TDLib library stores data in memory throughout the life cycle of the application. It is recommended to restart the application from time to time for prolonged uses.
 
 ### Libraries
 
-In the _lib/_ are located the binaries for Windows and Linux. If you need other binaries to make it work for your machine, go to the [tdlib build page](https://tdlib.github.io/td/build.html).
+In the _lib/_ are located the binaries for Windows and Linux. If you need other binaries or you want to build by your own, go to the [TDLib build page](https://tdlib.github.io/td/build.html).
 
 ### Logs
 
-All actions and errors are logged in _log/app.log_ file.
+All actions and errors from the forwarder-app are logged in _log/app.log_ file. In the other side, TDLib logs are printed directly in the terminal.
 
 ### Issues
 
-If you detect a [bug](.github/ISSUE_TEMPLATE/bug_report.md) or you have a [suggestion](.github/ISSUE_TEMPLATE/feature_request.md), contact me by opening a ticket with the corresponding template.
+If you detect a [bug](.github/ISSUE_TEMPLATE/bug_report.md) or you have a [suggestion](.github/ISSUE_TEMPLATE/feature_request.md), open a ticket with the corresponding template.

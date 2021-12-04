@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # initial variables
 start_time = datetime.now()
-logger.info(f"Starting ForwarderApp at {start_time}")
+logger.info(f"Starting forwarder-app at {start_time}")
 
 print(
     "---------- ----------- ----------\nTelegram Forwarder App by @Alvhix\n---------- ----------- ----------"
@@ -52,5 +52,5 @@ forwarder = Forwarder(
 # start the forwarder
 forwarder.start()
 
-logger.info(f"Stopping ForwarderApp: executed for {datetime.now() - start_time}\n")
+logger.info(f"Stopping forwarder-app: executed for {datetime.now() - start_time}\n")
 exit()
