@@ -80,8 +80,6 @@ The best way to host this application is in a dedicated server as AWS, Google Cl
 
 Warning: The TDLib library stores data in memory throughout the life cycle of the application. At the moment there is no memory cleanup method, so it is recommended to restart the application from time to time for prolonged uses.
 
-Work in progress: a memory cleaning method for prolonged use over time
-
 ### Libraries
 
 In the _lib/_ are located the binaries for Windows and Linux. If you need other binaries to make it work for your machine, go to the [tdlib build page](https://tdlib.github.io/td/build.html).
