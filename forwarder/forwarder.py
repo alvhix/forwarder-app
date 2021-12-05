@@ -8,7 +8,14 @@ from getpass import getpass
 
 class Forwarder:
     def __init__(
-        self, client, limit_chats, periodicity_fwd, rules_path, log_path, group_messages
+        self,
+        client,
+        limit_chats,
+        periodicity_fwd,
+        rules_path,
+        log_path,
+        group_messages,
+        verbosity,
     ) -> None:
         self.logger = logging.getLogger(__name__)
         self.client = client
@@ -17,6 +24,7 @@ class Forwarder:
         self.periodicity_fwd = periodicity_fwd
         self.limit_chats = limit_chats
         self.group_messages = group_messages
+        self.verbosity = verbosity
 
         # load rules file
         with open(self.rules_path) as rules_file:
@@ -60,8 +68,8 @@ class Forwarder:
                     # handle every update
                     self.listen_update_handler(event)
 
-                # process the message queue (if is not empty)
-                self.process_message_queue()
+                # process grouped messages
+                self.process_grouped_messages()
 
         except KeyboardInterrupt:
             self.client.stop()
@@ -167,13 +175,7 @@ class Forwarder:
                 message = Message(message_update, rule)
 
                 # group messages or not
-                if self.group_messages:
-                    # append the message to the queue
-                    self.messages.append(message)
-                    self.recently_added = True
-                    self.logger.debug("Message appended to the queue")
-                else:
-                    self.process_message(message)
+                self.process_message_config(message)
 
     def error_update_handler(self, event) -> None:
         if event["@type"] == self.client.ERROR:
@@ -183,6 +185,14 @@ class Forwarder:
     def listen_update_handler(self, event):
         self.logger.debug(str(event).encode())
         sys.stdout.flush()
+
+    def process_message_config(self, message):
+        if self.group_messages:
+            self.messages.append(message)
+            self.recently_added = True
+            self.logger.debug("Message appended to the queue")
+        else:
+            self.process_message(message)
 
     def process_message(self, message) -> None:
         message_id = message.message_id
@@ -203,10 +213,11 @@ class Forwarder:
                 remove_caption,
             )
             # log action
-            self.logger.info(f"Message forwarding has been sent to the API: {message}")
-            print(f"Message forwarded: {message}")
+            self.logger.info(f"Message has been sent to the API: {message}")
+            if self.verbosity == logging.DEBUG:
+                print(f"Message has been sent to the API: {message}")
 
-    def process_message_queue(self) -> None:
+    def process_grouped_messages(self) -> None:
         # there are messages to proccess
         if self.messages:
             # proccess queue messages
@@ -214,26 +225,28 @@ class Forwarder:
                 (datetime.now() - self.start_update_time).total_seconds()
             )
 
-            if self.difference_seconds % self.periodicity_fwd == 0:
-                # only execute this once every x seconds
-                if self.forwarded < self.difference_seconds:
-                    # message added recently, skip to next iteration
-                    if not self.recently_added:
-                        self.logger.debug("Processing message queue")
+            # only execute this once every x seconds
+            if (
+                self.difference_seconds % self.periodicity_fwd == 0
+                and self.forwarded < self.difference_seconds
+            ):
+                # message added recently, skip to next iteration
+                if not self.recently_added:
+                    self.logger.debug("Processing message queue")
 
-                        # proccess stored messages
-                        grouped_messages = self.group_message_id(self.messages)
-                        self.logger.debug("Message/s grouped by rule_id")
+                    # proccess stored messages
+                    grouped_messages = self.group_message_id(self.messages)
+                    self.logger.debug("Message/s grouped by rule_id")
 
-                        for message in grouped_messages:
-                            self.process_message(message)
+                    for message in grouped_messages:
+                        self.process_message(message)
 
-                        # clear queue of messages
-                        self.messages.clear()
-                        self.logger.debug("Message queue processed and cleared")
+                    # clear queue of messages
+                    self.messages.clear()
+                    self.logger.debug("Message queue processed and cleared")
 
-                        # updates forwarded state
-                        self.forwarded = self.difference_seconds
+                    # updates forwarded state
+                    self.forwarded = self.difference_seconds
 
     # group message_id by rule_id
     def group_message_id(self, messages) -> list:

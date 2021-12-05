@@ -1,3 +1,4 @@
+from logging import DEBUG, INFO
 import platform
 from os import path, environ
 from dotenv import load_dotenv
@@ -40,4 +41,5 @@ FORWARDER = {
     "log_path": path.join(__dirname, "log/app.log"),
     "rules_path": path.join(__dirname, "forwarder-app.config.yml"),
     "group_messages": False,  # group media messages or not
+    "verbosity": INFO,
 }

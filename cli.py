@@ -9,7 +9,7 @@ from datetime import datetime
 logging.basicConfig(
     filename=FORWARDER["log_path"],
     filemode="a",
-    level=logging.INFO,
+    level=FORWARDER["verbosity"],
     format="%(asctime)s [%(filename)s:%(lineno)d]|%(levelname)s|%(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -47,6 +47,7 @@ forwarder = Forwarder(
     FORWARDER["rules_path"],
     FORWARDER["log_path"],
     FORWARDER["group_messages"],
+    FORWARDER["verbosity"],
 )
 
 # start the forwarder
