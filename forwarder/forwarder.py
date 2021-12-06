@@ -226,27 +226,25 @@ class Forwarder:
             )
 
             # only execute this once every x seconds
-            if (
-                self.difference_seconds % self.periodicity_fwd == 0
-                and self.forwarded < self.difference_seconds
-            ):
-                # message added recently, skip to next iteration
-                if not self.recently_added:
-                    self.logger.debug("Processing message queue")
+            if self.difference_seconds % self.periodicity_fwd == 0:
+                if self.forwarded < self.difference_seconds:
+                    # message added recently, skip to next iteration
+                    if not self.recently_added:
+                        self.logger.debug("Processing message queue")
 
-                    # proccess stored messages
-                    grouped_messages = self.group_message_id(self.messages)
-                    self.logger.debug("Message/s grouped by rule_id")
+                        # proccess stored messages
+                        grouped_messages = self.group_message_id(self.messages)
+                        self.logger.debug("Message/s grouped by rule_id")
 
-                    for message in grouped_messages:
-                        self.process_message(message)
+                        for message in grouped_messages:
+                            self.process_message(message)
 
-                    # clear queue of messages
-                    self.messages.clear()
-                    self.logger.debug("Message queue processed and cleared")
+                        # clear queue of messages
+                        self.messages.clear()
+                        self.logger.debug("Message queue processed and cleared")
 
-                    # updates forwarded state
-                    self.forwarded = self.difference_seconds
+                # updates forwarded state
+                self.forwarded = self.difference_seconds
 
     # group message_id by rule_id
     def group_message_id(self, messages) -> list:
