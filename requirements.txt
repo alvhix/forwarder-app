@@ -1,2 +1,2 @@
-python-dotenv==0.19.0
-PyYAML==5.4.1
+pywtdlib==0.0.5
+PyYAML==6.0

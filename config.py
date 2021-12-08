@@ -1,45 +1,13 @@
-from logging import DEBUG, INFO
-import platform
 from os import path, environ
-from dotenv import load_dotenv
 
-load_dotenv()
-__dirname = path.dirname(__file__)
-
-""" client settings """
-if platform.system() == "Windows":
-    if platform.machine() == "AMD64":
-        __lib = "lib/windows/AMD64/tdjson.dll"
-elif platform.system() == "Linux":
-    if platform.machine() == "AMD64":
-        __lib = "lib/linux/AMD64/libtdjson.so"
-    elif platform.machine() == "armv7l":
-        __lib = "lib/linux/armv7l/libtdjson.so"
-
-CLIENT = {
-    "api_id": environ["API_ID"],  # your API_ID
-    "api_hash": environ["API_HASH"],  # your API_HASH
-    "use_test_dc": False,
-    "tdlib_path": path.join(__dirname, __lib),
-    "wait_timeout": 1,  # second/s
-    "database_directory": "tdlib",
-    "use_file_database": False,
-    "use_chat_info_database": False,
-    "use_message_database": False,
-    "use_secret_chats": True,
-    "system_language": "en",
-    "device_model": "Desktop",
-    "app_version": "0.1.0",
-    "enable_storage_optimizer": True,
-    "verbosity": 1,
-}
+_dirname = path.dirname(__file__)
 
 """ forwarder settings """
 FORWARDER = {
-    "limit_chats": 100000,
+    "api_id": environ["API_ID"],
+    "api_hash": environ["API_HASH"],
+    "rules_path": path.join(_dirname, "forwarder-app.config.yml"),
     "periodicity_fwd": 1,  # second/s
-    "log_path": path.join(__dirname, "log/app.log"),
-    "rules_path": path.join(__dirname, "forwarder-app.config.yml"),
     "group_messages": False,  # group media messages or not
-    "verbosity": INFO,
+    "verbosity": 1,
 }

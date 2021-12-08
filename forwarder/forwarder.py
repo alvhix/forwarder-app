@@ -1,28 +1,26 @@
 import yaml
 import logging
-import sys
+from pywtdlib.client import Client
+from pywtdlib.enum import Update
 from forwarder.message import Message
 from datetime import datetime
-from getpass import getpass
 
 
 class Forwarder:
     def __init__(
         self,
-        client,
-        limit_chats,
-        periodicity_fwd,
+        api_id,
+        api_hash,
         rules_path,
-        log_path,
+        periodicity_fwd,
         group_messages,
         verbosity,
     ) -> None:
         self.logger = logging.getLogger(__name__)
-        self.client = client
+        self.api_id = api_id
+        self.api_hash = api_hash
         self.rules_path = rules_path
-        self.log_path = log_path
         self.periodicity_fwd = periodicity_fwd
-        self.limit_chats = limit_chats
         self.group_messages = group_messages
         self.verbosity = verbosity
 
@@ -36,134 +34,9 @@ class Forwarder:
         self.messages = []
         self.start_update_time = 0
 
-    def __str__(self) -> str:
-        return (
-            "{"
-            + f"client: {self.client}, log_path: {self.log_path}, rules_path: {self.rules_path}, log_path: {self.log_path}, periodicity_fwd: {self.periodicity_fwd}, limit_chats: {self.limit_chats}"
-            + "}"
-        )
-
-    def start(self) -> None:
-        # start the client by sending request to it
-        self.client.send({"@type": "getAuthorizationState"})
-
-        # chrono
-        self.start_update_time = datetime.now()
-        try:
-            # main events cycle
-            while True:
-                self.recently_added = False
-                event = self.client.receive()
-
-                if event:
-                    # authenticate user
-                    self.authenticate_user(event)
-
-                    # handle new messages
-                    self.new_message_update_handler(event)
-
-                    # handler errors
-                    self.error_update_handler(event)
-
-                    # handle every update
-                    self.listen_update_handler(event)
-
-                # process grouped messages
-                self.process_grouped_messages()
-
-        except KeyboardInterrupt:
-            self.client.stop()
-            self.logger.info("Client destroyed by the user")
-        except Exception as error:
-            self.client.stop()
-            self.logger.fatal(f"Fatal error: {error}")
-
-    def authenticate_user(self, event) -> None:
-        # process authorization states
-        if event["@type"] == self.client.AUTHORIZATION:
-            auth_state = event["authorization_state"]
-
-            # if client is closed, we need to destroy it and create new client
-            if auth_state["@type"] == self.client.CLOSED:
-                self.logger.critical(event)
-                raise ValueError(event)
-
-            # set TDLib parameters
-            # you MUST obtain your own api_id and api_hash at https://my.telegram.org
-            # and use them in the setTdlibParameters call
-            if auth_state["@type"] == self.client.WAIT_TDLIB_PARAMETERS:
-                self.client.send(
-                    {
-                        "@type": "setTdlibParameters",
-                        "parameters": {
-                            "database_directory": self.client.database_directory,
-                            "use_file_database": self.client.use_file_database,
-                            "use_secret_chats": self.client.use_secret_chats,
-                            "api_id": self.client.api_id,
-                            "api_hash": self.client.api_hash,
-                            "system_language_code": self.client.system_language,
-                            "device_model": self.client.device_model,
-                            "application_version": self.client.app_version,
-                            "enable_storage_optimizer": self.client.enable_storage_optimizer,
-                        },
-                    }
-                )
-
-            # set an encryption key for database to let know TDLib how to open the database
-            if auth_state["@type"] == self.client.WAIT_ENCRYPTION_KEY:
-                self.client.send(
-                    {
-                        "@type": "checkDatabaseEncryptionKey",
-                        "encryption_key": "",
-                    }
-                )
-
-            # enter phone number to log in
-            if auth_state["@type"] == self.client.WAIT_PHONE_NUMBER:
-                phone_number = input("Please enter your phone number: ")
-                self.client.send(
-                    {
-                        "@type": "setAuthenticationPhoneNumber",
-                        "phone_number": phone_number,
-                    }
-                )
-
-            # wait for authorization code
-            if auth_state["@type"] == self.client.WAIT_CODE:
-                code = input("Please enter the authentication code you received: ")
-                self.client.send({"@type": "checkAuthenticationCode", "code": code})
-
-            # wait for first and last name for new users
-            if auth_state["@type"] == self.client.WAIT_REGISTRATION:
-                first_name = input("Please enter your first name: ")
-                last_name = input("Please enter your last name: ")
-                self.client.send(
-                    {
-                        "@type": "registerUser",
-                        "first_name": first_name,
-                        "last_name": last_name,
-                    }
-                )
-
-            # wait for password if present
-            if auth_state["@type"] == self.client.WAIT_PASSWORD:
-                password = getpass("Please enter your password: ")
-                self.client.send(
-                    {
-                        "@type": "checkAuthenticationPassword",
-                        "password": password,
-                    }
-                )
-
-            # user authenticated
-            if auth_state["@type"] == self.client.READY:
-                # get all chats
-                self.client.send({"@type": "getChats", "limit": self.limit_chats})
-                self.logger.info("User authorized")
-
     def new_message_update_handler(self, event) -> None:
         # handle incoming messages
-        if event["@type"] == self.client.NEW_MESSAGE:
+        if event["@type"] == Update.NEW_MESSAGE:
             message_update = event["message"]
 
             for rule in self.rules:
@@ -176,15 +49,6 @@ class Forwarder:
 
                 # group messages or not
                 self.process_message_config(message)
-
-    def error_update_handler(self, event) -> None:
-        if event["@type"] == self.client.ERROR:
-            # log the error
-            self.logger.error(event)
-
-    def listen_update_handler(self, event):
-        self.logger.debug(str(event).encode())
-        sys.stdout.flush()
 
     def process_message_config(self, message):
         if self.group_messages:
@@ -214,8 +78,6 @@ class Forwarder:
             )
             # log action
             self.logger.info(f"Message has been sent to the API: {message}")
-            if self.verbosity == logging.DEBUG:
-                print(f"Message has been sent to the API: {message}")
 
     def process_grouped_messages(self) -> None:
         # there are messages to proccess
@@ -263,3 +125,13 @@ class Forwarder:
                             result.append(message)
                             break
         return result
+
+    def start(self):
+        self.client = Client(
+            api_id=self.api_id, api_hash=self.api_hash, verbosity=self.verbosity
+        )
+
+        self.client.set_update_handler(self.new_message_update_handler)
+        self.client.set_routine_handler(self.process_grouped_messages)
+
+        self.client.start()

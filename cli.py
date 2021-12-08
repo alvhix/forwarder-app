@@ -1,15 +1,14 @@
 import logging
-
-from forwarder.client import Client
 from forwarder.forwarder import Forwarder
+from config import FORWARDER
 from sys import exit
-from config import CLIENT, FORWARDER
 from datetime import datetime
 
+
 logging.basicConfig(
-    filename=FORWARDER["log_path"],
+    filename="log/app.log",
     filemode="a",
-    level=FORWARDER["verbosity"],
+    level=logging.INFO,
     format="%(asctime)s [%(filename)s:%(lineno)d]|%(levelname)s|%(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -22,30 +21,12 @@ print(
     "---------- ----------- ----------\nTelegram Forwarder App by @Alvhix\n---------- ----------- ----------"
 )
 
-# build the client object
-client = Client(
-    CLIENT["api_id"],
-    CLIENT["api_hash"],
-    CLIENT["use_test_dc"],
-    CLIENT["tdlib_path"],
-    CLIENT["wait_timeout"],
-    CLIENT["database_directory"],
-    CLIENT["use_file_database"],
-    CLIENT["use_secret_chats"],
-    CLIENT["system_language"],
-    CLIENT["device_model"],
-    CLIENT["app_version"],
-    CLIENT["enable_storage_optimizer"],
-    CLIENT["verbosity"],
-)
-
 # build the forwarder object
 forwarder = Forwarder(
-    client,
-    FORWARDER["limit_chats"],
-    FORWARDER["periodicity_fwd"],
+    FORWARDER["api_id"],
+    FORWARDER["api_hash"],
     FORWARDER["rules_path"],
-    FORWARDER["log_path"],
+    FORWARDER["periodicity_fwd"],
     FORWARDER["group_messages"],
     FORWARDER["verbosity"],
 )
