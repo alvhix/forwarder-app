@@ -32,7 +32,7 @@ class Forwarder:
         # forwarder variables
         self.forwarded = 0
         self.messages = []
-        self.start_update_time = 0
+        self.start_update_time = datetime.now()
 
     def new_message_update_handler(self, event) -> None:
         # handle incoming messages
@@ -47,18 +47,18 @@ class Forwarder:
                 # build the message
                 message = Message(message_update, rule)
 
-                # group messages or not
-                self.process_message_config(message)
+                # process message with the configured options
+                self.get_option(message)
 
-    def process_message_config(self, message):
+    def get_option(self, message):
         if self.group_messages:
             self.messages.append(message)
             self.recently_added = True
             self.logger.debug("Message appended to the queue")
         else:
-            self.process_message(message)
+            self.forward_messages(message)
 
-    def process_message(self, message) -> None:
+    def forward_messages(self, message) -> None:
         message_id = message.message_id
         source_id = message.source_id
         destination_ids = message.destination_ids
@@ -99,7 +99,7 @@ class Forwarder:
                         self.logger.debug("Message/s grouped by rule_id")
 
                         for message in grouped_messages:
-                            self.process_message(message)
+                            self.forward_messages(message)
 
                         # clear queue of messages
                         self.messages.clear()
@@ -107,6 +107,8 @@ class Forwarder:
 
                 # updates forwarded state
                 self.forwarded = self.difference_seconds
+
+        self.recently_added = False
 
     # group message_id by rule_id
     def group_message_id(self, messages) -> list:
