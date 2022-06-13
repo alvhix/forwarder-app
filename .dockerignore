@@ -1,6 +1,5 @@
 .git
 .github
 .gitignore
-tdlib
 __pycache__
 .env
