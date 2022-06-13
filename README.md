@@ -137,9 +137,8 @@ Warning: The TDLib library stores data in memory throughout the life cycle of th
 
 ## Logs
 
-All actions and errors from the forwarder-app are logged in _log/app.log_ file. In the other side, TDLib logs are printed directly in the terminal.
-To see your logs execute this with your docker container id: `docker exec my_container tail log/app.log`
-Errors are registered by TDLib in console, to see the printed errors to console: `docker logs my_container`
+- To see your logs execute this with your docker container id: `docker exec my_container tail log/app.log`
+- Errors are registered by TDLib in console, to see the printed errors to console: `docker logs my_container`
 
 ## Issues
 
