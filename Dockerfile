@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:alpine
 WORKDIR /forwarder-app
 RUN apt-get update -y && \
     apt-get upgrade -y && \
