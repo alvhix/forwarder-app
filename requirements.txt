@@ -1,2 +1,2 @@
-pywtdlib==0.0.6
+pywtdlib
 PyYAML==6.0
