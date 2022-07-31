@@ -75,7 +75,7 @@ Also, it depends on [pywtdlib](https://github.com/alvhix/pywtdlib) which is a sy
    docker run \
    -v "$(pwd)/forwarder-app.config.yml:/forwarder-app/forwarder-app.config.yml" \
    --env-file .env \
-   -it alvhix/forwarder-app:armv7l
+   -it alvhix/forwarder-app
    ```
 
 - -v Bind your forwarder-app.config.yml with the one on the docker container

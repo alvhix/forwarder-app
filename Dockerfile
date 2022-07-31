@@ -1,8 +1,8 @@
-FROM python:3-slim
+FROM python:alpine
 WORKDIR /forwarder-app
-RUN apt-get update -y && \
-    apt-get upgrade -y && \
-    apt-get install zlib1g-dev libssl-dev gperf php-cli libc++-dev libc++abi-dev -y
+RUN apk update && \
+    apk upgrade && \
+    apk add --update alpine-sdk linux-headers zlib-dev openssl-dev
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY . .
