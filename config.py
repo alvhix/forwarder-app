@@ -1,5 +1,7 @@
 from os import path, environ
+from dotenv import load_dotenv
 
+load_dotenv()
 _dirname = path.dirname(__file__)
 
 """ forwarder settings """

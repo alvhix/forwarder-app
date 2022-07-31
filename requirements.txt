@@ -1,2 +1,3 @@
 pywtdlib
 PyYAML==6.0
+python-dotenv==0.20.0
