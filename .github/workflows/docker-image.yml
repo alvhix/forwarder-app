@@ -17,9 +17,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Run Buildx (push image)
-        run: |
-          docker buildx build \        
-          --platform ${{ secrets.TARGET_PLATFORMS }} \             
-          --tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest, ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.run_number }} \        
-          --push .
+      - name: Push image to Docker Hub
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          platforms: ${{ secrets.TARGET_PLATFORMS }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest, ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.run_number }}
