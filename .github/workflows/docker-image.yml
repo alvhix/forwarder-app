@@ -22,5 +22,4 @@ jobs:
           docker buildx build \        
           --platform ${{ secrets.TARGET_PLATFORMS }} \             
           --tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest, ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.run_number }} \        
-          --file ./Dockerfile \        
-          --output type=image,push=true .
+          --push .
