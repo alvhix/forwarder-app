@@ -18,7 +18,7 @@ start_time = datetime.now()
 logger.info(f"Starting forwarder-app at {start_time}")
 
 print(
-    "---------- ----------- ----------\nTelegram Forwarder App by @Alvhix\n---------- ----------- ----------"
+    "\n---------- ----------- ----------\nTelegram Forwarder App by @Alvhix\n---------- ----------- ----------\n"
 )
 
 # build the forwarder object
