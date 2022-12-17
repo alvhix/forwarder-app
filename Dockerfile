@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:3.8-alpine
 WORKDIR /forwarder-app
 RUN apk update && \
     apk upgrade && \
