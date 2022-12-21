@@ -1,12 +1,12 @@
 import logging
+from config import Config
 from forwarder.forwarder import Forwarder
-from config import FORWARDER
 from sys import exit
 from datetime import datetime
 
 
 logging.basicConfig(
-    filename="log/app.log",
+    filename=Config.LOG_FILE,
     filemode="a",
     level=logging.INFO,
     format="%(asctime)s [%(filename)s:%(lineno)d]|%(levelname)s|%(message)s",
@@ -23,12 +23,12 @@ print(
 
 # build the forwarder object
 forwarder = Forwarder(
-    FORWARDER["api_id"],
-    FORWARDER["api_hash"],
-    FORWARDER["rules_path"],
-    FORWARDER["periodicity_fwd"],
-    FORWARDER["group_messages"],
-    FORWARDER["verbosity"],
+    api_id=Config.API_ID,
+    api_hash=Config.API_HASH,
+    rules_path=Config.RULES_PATH,
+    periodicity_fwd=Config.PERIODICITY,
+    group_messages=Config.GROUP_MESSAGE,
+    verbosity=Config.TDJSON_VERBOSITY,
 )
 
 # start the forwarder
