@@ -75,6 +75,7 @@ Also, it depends on [pywtdlib](https://github.com/alvhix/pywtdlib) which is a sy
    docker run \
    -v "$(pwd)/forwarder-app.config.yml:/forwarder-app/forwarder-app.config.yml" \
    --env-file .env \
+   --name forwader-app \
    -it alvhix/forwarder-app
    ```
 
@@ -86,10 +87,10 @@ Optional: You can pass the parameter --restart=always to make sure that the cont
 
 This will execute the docker container and it will ask you for your Telegram account phone number and a code that you will receive. To stop the session in your Telegram account, just go to Telegram app > Settings > Privacy and security > Devices > Active sessions (just delete here the pywtdlib app)
 
-4. Next time you want to run the container, just use this command replacing my_container by the container you just created in the step before:
+4. Next time you want to run the container, just use this command:
 
    ```
-   docker start my_container
+   docker start forwader-app
    ```
 
 5. (Recommended): If you want to run the app for long periods of time in your server, I recommend you to create a cron job in your Linux machine to avoid an OOM. TDLib caches all data to be that fast, if you have a lot of chats and let the app run for long periods of time it can take all your server memory. To fix this possible problem, follow this steps:
@@ -100,10 +101,10 @@ This will execute the docker container and it will ask you for your Telegram acc
      crontab -e
      ```
 
-   - Put this at the bottom of the file, replacing my_container by the name of your container and save it
+   - Put this at the bottom of the file and save it
 
      ```
-     0 0 * * 0 /usr/bin/docker restart my_container
+     0 0 * * 0 /usr/bin/docker restart forwader-app
      ```
 
    This will make your docker container restart at 00:00 on every Sunday. For more info, you can check this [page](https://crontab.guru/).
@@ -111,7 +112,7 @@ This will execute the docker container and it will ask you for your Telegram acc
 6. To interrupt your docker container, just type
 
    ```
-   docker stop my_container
+   docker stop forwader-app
    ```
 
 ### Configuration:
@@ -137,8 +138,8 @@ Warning: The TDLib library stores data in memory throughout the life cycle of th
 
 ## Logs
 
-- To see your logs execute this with your docker container id: `docker exec my_container tail log/app.log`
-- Errors are registered by TDLib in console, to see the printed errors to console: `docker logs my_container`
+- To see your logs execute this with your docker container id: `docker exec forwader-app tail log/app.log`
+- Errors are registered by TDLib in console, to see the printed errors to console: `docker logs forwader-app`
 
 ## Issues
 
