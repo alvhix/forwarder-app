@@ -75,7 +75,7 @@ Also, it depends on [pywtdlib](https://github.com/alvhix/pywtdlib) which is a sy
    docker run \
    -v "$(pwd)/forwarder-app.config.yml:/forwarder-app/forwarder-app.config.yml" \
    --env-file .env \
-   --name forwader-app \
+   --name forwarder-app \
    -it alvhix/forwarder-app
    ```
 
@@ -90,7 +90,7 @@ This will execute the docker container and it will ask you for your Telegram acc
 4. Next time you want to run the container, just use this command:
 
    ```
-   docker start forwader-app
+   docker start forwarder-app
    ```
 
 5. (Recommended): If you want to run the app for long periods of time in your server, I recommend you to create a cron job in your Linux machine to avoid an OOM. TDLib caches all data to be that fast, if you have a lot of chats and let the app run for long periods of time it can take all your server memory. To fix this possible problem, follow this steps:
@@ -104,7 +104,7 @@ This will execute the docker container and it will ask you for your Telegram acc
    - Put this at the bottom of the file and save it
 
      ```
-     0 0 * * 0 /usr/bin/docker restart forwader-app
+     0 0 * * 0 /usr/bin/docker restart forwarder-app
      ```
 
    This will make your docker container restart at 00:00 on every Sunday. For more info, you can check this [page](https://crontab.guru/).
@@ -112,7 +112,7 @@ This will execute the docker container and it will ask you for your Telegram acc
 6. To interrupt your docker container, just type
 
    ```
-   docker stop forwader-app
+   docker stop forwarder-app
    ```
 
 ### Configuration:
@@ -138,8 +138,8 @@ Warning: The TDLib library stores data in memory throughout the life cycle of th
 
 ## Logs
 
-- To see your logs execute this with your docker container id: `docker exec forwader-app tail log/app.log`
-- Errors are registered by TDLib in console, to see the printed errors to console: `docker logs forwader-app`
+- To see your logs execute this with your docker container id: `docker exec forwarder-app tail log/app.log`
+- Errors are registered by TDLib in console, to see the printed errors to console: `docker logs forwarder-app`
 
 ## Issues
 
