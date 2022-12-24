@@ -6,7 +6,6 @@ _dirname = path.dirname(__file__)
 
 
 class Config:
-    """forwarder settings"""
 
     API_ID = int(environ.get("API_ID"))
     API_HASH = environ.get("API_HASH")
